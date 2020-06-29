@@ -1,34 +1,11 @@
+----------------------
+--- Bad-ServerList ---
+----------------------
 Config = {
-	Default_Prio = 500000, -- This is the default priority value if a discord isn't found
-	Displays = {
-		Prefix = '[BadgerDiscordQueue]',
-		ConnectingLoop = { 
-			'🦡🌿🦡🌿🦡🌿',
-			'🌿🦡🌿🦡🌿🦡',
-			'🦡🌿🦡🌿🦡🥦',
-			'🌿🦡🌿🦡🥦🦡',
-			'🦡🌿🦡🥦🦡🥦',
-			'🌿🦡🥦🦡🥦🦡',
-			'🦡🥦🦡🥦🦡🥦',
-			'🥦🦡🥦🦡🥦🦡',
-			'🦡🥦🦡🥦🦡🌿',
-			'🥦🦡🥦🦡🌿🦡',
-			'🦡🥦🦡🌿🦡🌿',
-			'🥦🦡🌿🦡🌿🦡',
-		},
-		Messages = {
-			MSG_CONNECTING = 'You are being connected [{QUEUE_NUM}/{QUEUE_MAX}]: ',
-			MSG_CONNECTED = 'You are up! You are being connected now :)'
-		}
-	}
-}
-
-Config.Rankings = {
-	-- LOWER NUMBER === HIGHER PRIORITY 
-	['720060030187077664'] = 500, -- Discord User 
-	['720312358689308772'] = 400, -- Donator 
-	['720289215111495782'] = 300, -- Trial Mod 
-	['720289096488058890'] = 200, -- Mod 
-	['720289399845421106'] = 100, -- Admin 
-	['720068306962219068'] = 1, -- Management
+	GuildID = '720058651456438314',
+	BotToken = 'NzIwMzI4NzMyNjk4NjA3Njc2.XvTBKA.7_0dHRngh3jtz6Tb_11AxA3kD54',
+	Default_Profile = "https://www.gamesindustry.biz/img/base/default-user.png", -- Discord Avatar column picture if theirs is not found 
+	Discord_Not_Found = "Not Found", -- This will display under 'Discord Name' column if their name is not found 
+	ServerName = 'Noir Roleplay',
+	PageSize = 10,
 }
