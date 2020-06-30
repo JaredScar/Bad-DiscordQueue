@@ -49,6 +49,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
     local message = GetMessage(user);
     local msg = message:gsub("{QUEUE_NUM}", Queue:GetQueueNum(user)):gsub("{QUEUE_MAX}", Queue:GetMax());
     deferrals.update(prefix .. " " .. msg .. displays[displayIndex]);
+    CancelEvent();
     displayIndex = displayIndex + 1;
   end
   -- If it got down here, they are now allowed to join the server 

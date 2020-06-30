@@ -1,6 +1,6 @@
 Config = {
 	Default_Prio = 500000, -- This is the default priority value if a discord isn't found
-	AllowedPerTick = 5, -- How many players should we allow to connect at a time?
+	AllowedPerTick = 1, -- How many players should we allow to connect at a time?
 	HostDisplayQueue = true,
 	Displays = {
 		Prefix = '[BadgerDiscordQueue]',
