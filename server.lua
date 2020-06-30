@@ -19,7 +19,8 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
     if displayIndex > #displays then
       displayIndex = 1;
     end 
-    local msg = Config.Displays.Messages.MSG_CONNECTING:gsub("{QUEUE_NUM}", Queue:GetQueueNum(user)):gsub("{QUEUE_MAX}", Queue:GetMax());
+    local message = GetMessage(user);
+    local msg = message:gsub("{QUEUE_NUM}", Queue:GetQueueNum(user)):gsub("{QUEUE_MAX}", Queue:GetMax());
     deferrals.update(prefix .. " " .. msg .. displays[displayIndex]);
     displayIndex = displayIndex + 1;
   end
