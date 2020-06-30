@@ -1,13 +1,17 @@
-fx_version 'adamant'
+fx_version 'bodacious'
 
 game 'gta5'
 
 description 'Bad-DiscordQueue'
 
 
-client_script "config.lua"
-client_script "client.lua"
+client_scripts{ 
+  "config.lua",
+  "client.lua"
+ }
 
-server_script "config.lua"
-server_script "SharedQueue.lua"
-server_script "server.lua"
+server_scripts{
+  "config.lua",
+  "SharedQueue.lua",
+  "server.lua"
+}
