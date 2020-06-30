@@ -4,6 +4,7 @@ prefix = Config.Displays.Prefix;
 discords = {}
 currentConnectors = 0;
 maxConnectors = Config.AllowedPerTick;
+hostname = GetConvar("sv_hostname")
 
 AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
   deferrals.defer();
@@ -12,6 +13,9 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
     -- Set them up 
     Queue:SetupPriority(user);
     print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " has been set to the QUEUE");
+    if Config.HostDisplayQueue then 
+      SetConvar("sv_hostname", "[" .. "1" .. "/" .. (Queue:GetMax() + 1) .. "] " .. hostname);
+    end
   end
   while not (Queue:CheckQueue(user)) and (currentConnectors == maxConnectors) do -- Has max that can connect at a time 
     -- They are still in the queue 
