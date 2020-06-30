@@ -11,7 +11,7 @@ Citizen.CreateThread(function()
     Wait((1000 * 15)); -- Every 15 seconds 
     if Config.HostDisplayQueue then 
       if hostname ~= "default FXServer" and Queue:GetMax() > 0 then 
-        SetConvar("sv_hostname", "[" .. "1" .. "/" .. (Queue:GetMax() + 1) .. "] " .. hostname);
+        SetConvar("sv_hostname", "[" .. Queue:GetMax() .. "/" .. (Queue:GetMax() + 1) .. "] " .. hostname);
         --print(prefix .. " Set server title: '" .. "[" .. "1" .. "/" .. (Queue:GetMax() + 1) .. "] " .. hostname .. "'")
       end
       if hostname ~= "default FXServer" and Queue:GetMax() == 0 then 
