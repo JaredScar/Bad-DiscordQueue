@@ -107,6 +107,29 @@ function Queue:GetMax()
 	return cout;
 end
 
+function Queue:Config.DisplayCount(user)
+	local discordId = nil;
+	local license = nil;
+
+	for _, id in ipairs(GetPlayerIdentifiers(user)) do
+	    if string.match(id, "discord:") then
+	        discordId = string.gsub(id, "discord:", "")
+	        print("changed server title to queue count)
+	    end
+	    if string.match(id, "license:") then 
+	    	license = string.gsub(id, "license:", "")
+				if queue.count = nil
+					return message.channel.send("Succesfull!")
+					elseif = queue.count not = nil
+					then return change server.title.queue.count
+	    end
+	end
+	if (Queue.Players[license] ~= nil) then 
+		return true;
+	end 
+	return false;
+end
+
 function Queue:GetQueueNum(user)
 	local cout = 0;
 	local discordId = nil;
