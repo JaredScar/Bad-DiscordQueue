@@ -5,12 +5,12 @@ game 'gta5'
 description 'Bad-DiscordQueue'
 
 
-client_scripts{ 
+client_scripts { 
   "config.lua",
   "client.lua"
 }
 
-server_scripts{
+server_scripts {
   "config.lua",
   "SharedQueue.lua",
   "server.lua"
