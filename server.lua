@@ -5,6 +5,7 @@ discords = {}
 currentConnectors = 0;
 maxConnectors = Config.AllowedPerTick;
 hostname = GetConvar("sv_hostname")
+slots = GetConvar("sv_maxclients");
 
 Citizen.CreateThread(function()
   while true do 
@@ -32,33 +33,72 @@ Citizen.CreateThread(function()
   end 
 end)
 
+function GetPlayerCount() 
+  local cout = 0;
+  for _, id in pairs(GetPlayers()) do 
+    cout = cout + 1;
+  end
+  return cout;
+end
+
 AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
   deferrals.defer();
   local user = source;
-  if not Queue:IsSetUp(user) then 
-    -- Set them up 
-    Queue:SetupPriority(user);
-    print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " has been set to the QUEUE");
+  if Config.onlyActiveWhenFull == true then 
+    -- It's only active when server is full so lets check 
+    if GetPlayerCount() == slots then 
+      -- It's full, activate
+      if not Queue:IsSetUp(user) then 
+        -- Set them up 
+        Queue:SetupPriority(user);
+        print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " has been set to the QUEUE");
+      end
+      while ( not (Queue:CheckQueue(user)) and (currentConnectors == maxConnectors) ) or (GetPlayerCount() == slots) do 
+        -- They are still in the queue 
+        Wait(1000);
+        if displayIndex > #displays then
+          displayIndex = 1;
+        end 
+        local message = GetMessage(user);
+        local msg = message:gsub("{QUEUE_NUM}", Queue:GetQueueNum(user)):gsub("{QUEUE_MAX}", Queue:GetMax());
+        deferrals.update(prefix .. " " .. msg .. displays[displayIndex]);
+        CancelEvent();
+        displayIndex = displayIndex + 1;
+      end
+      -- If it got down here, they are now allowed to join the server 
+      currentConnectors = currentConnectors + 1;
+      print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " is allowed to join now!");
+      local msg = Config.Displays.Messages.MSG_CONNECTED;
+      deferrals.update(prefix .. " " .. msg);
+      Wait(1);
+      deferrals.done(); 
+    end
+  else 
+    if not Queue:IsSetUp(user) then 
+      -- Set them up 
+      Queue:SetupPriority(user);
+      print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " has been set to the QUEUE");
+    end
+    while ( not (Queue:CheckQueue(user)) and (currentConnectors == maxConnectors) ) or (GetPlayerCount() == slots) do 
+      -- They are still in the queue 
+      Wait(1000);
+      if displayIndex > #displays then
+        displayIndex = 1;
+      end 
+      local message = GetMessage(user);
+      local msg = message:gsub("{QUEUE_NUM}", Queue:GetQueueNum(user)):gsub("{QUEUE_MAX}", Queue:GetMax());
+      deferrals.update(prefix .. " " .. msg .. displays[displayIndex]);
+      CancelEvent();
+      displayIndex = displayIndex + 1;
+    end
+    -- If it got down here, they are now allowed to join the server 
+    currentConnectors = currentConnectors + 1;
+    print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " is allowed to join now!");
+    local msg = Config.Displays.Messages.MSG_CONNECTED;
+    deferrals.update(prefix .. " " .. msg);
+    Wait(1);
+    deferrals.done();
   end
-  while not (Queue:CheckQueue(user)) and (currentConnectors == maxConnectors) do -- Has max that can connect at a time 
-    -- They are still in the queue 
-    Wait(1000);
-    if displayIndex > #displays then
-      displayIndex = 1;
-    end 
-    local message = GetMessage(user);
-    local msg = message:gsub("{QUEUE_NUM}", Queue:GetQueueNum(user)):gsub("{QUEUE_MAX}", Queue:GetMax());
-    deferrals.update(prefix .. " " .. msg .. displays[displayIndex]);
-    CancelEvent();
-    displayIndex = displayIndex + 1;
-  end
-  -- If it got down here, they are now allowed to join the server 
-  currentConnectors = currentConnectors + 1;
-  print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " is allowed to join now!");
-  local msg = Config.Displays.Messages.MSG_CONNECTED;
-  deferrals.update(prefix .. " " .. msg);
-  Wait(1);
-  deferrals.done();
 end)
 AddEventHandler('playerDropped', function (reason)
   local user = source;
