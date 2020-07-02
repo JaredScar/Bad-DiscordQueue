@@ -79,7 +79,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
       Queue:SetupPriority(user);
       print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " has been set to the QUEUE");
     end
-    while ( not (Queue:CheckQueue(user)) and (currentConnectors == maxConnectors) ) or (GetPlayerCount() == slots) do 
+    while ( not (Queue:CheckQueue(user)) and (currentConnectors == maxConnectors) ) do 
       -- They are still in the queue 
       Wait(1000);
       if displayIndex > #displays then
