@@ -41,12 +41,13 @@ function GetPlayerCount()
   return cout;
 end
 
-AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
-  deferrals.defer();
+AddEventHandler('playerConnecting', function(name, setKickReason, deferrals) 
   local user = source;
+  
   if Config.onlyActiveWhenFull == true then 
     -- It's only active when server is full so lets check 
     if GetPlayerCount() == slots then 
+	   deferrals.defer();--Only set deferrals if server is full 
       -- It's full, activate
       if not Queue:IsSetUp(user) then 
         -- Set them up 
@@ -71,9 +72,12 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
       local msg = Config.Displays.Messages.MSG_CONNECTED;
       deferrals.update(prefix .. " " .. msg);
       Wait(1);
-      deferrals.done(); 
-    end
+      deferrals.done();
+  else	 
+      deferrals.done();--deferrals done if server is not full as we don't want the queue
+   end
   else 
+      deferrals.defer();--always set the defferals as onlyActiveWhenFull is false
     if not Queue:IsSetUp(user) then 
       -- Set them up 
       Queue:SetupPriority(user);
