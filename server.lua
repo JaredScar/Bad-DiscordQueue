@@ -5,7 +5,17 @@ discords = {}
 currentConnectors = 0;
 maxConnectors = Config.AllowedPerTick;
 hostname = GetConvar("sv_hostname")
-slots = GetConvar("sv_maxclients");
+slots = GetConvarInt('sv_maxclients', 32)
+
+StopResource('hardcap')
+
+AddEventHandler('onResourceStop', function(resource)
+  if resource == GetCurrentResourceName() then
+    if GetResourceState('hardcap') == 'stopped' then
+      StartResource('hardcap')
+    end
+  end
+end)
 
 Citizen.CreateThread(function()
   while true do 
@@ -43,10 +53,10 @@ end
 
 AddEventHandler('playerConnecting', function(name, setKickReason, deferrals) 
   local user = source;
-  deferrals.defer();
   if Config.onlyActiveWhenFull == true then 
     -- It's only active when server is full so lets check 
     if GetPlayerCount() == slots then  
+      deferrals.defer();
       -- It's full, activate
       if not Queue:IsSetUp(user) then 
         -- Set them up 
@@ -76,6 +86,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
       deferrals.done();--deferrals done if server is not full as we don't want the queue
     end
   else 
+    deferrals.defer();
     if not Queue:IsSetUp(user) then 
       -- Set them up 
       Queue:SetupPriority(user);
