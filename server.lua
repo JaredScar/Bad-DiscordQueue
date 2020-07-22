@@ -19,7 +19,9 @@ end)
 
 Citizen.CreateThread(function()
   while true do 
-    Wait((1000 * 15)); -- Every 15 seconds 
+    Wait((1000 * 15)); -- Every 15 seconds
+    --print("sv_maxclients is set to: " .. tostring(slots));
+    --print("Queue:GetMax() is set to: " .. tostring(Queue:GetMax())); 
     if Config.HostDisplayQueue then 
       if hostname ~= "default FXServer" and Queue:GetMax() > 0 then 
         SetConvar("sv_hostname", "[" .. Queue:GetMax() .. "/" .. (Queue:GetMax() + 1) .. "] " .. hostname);

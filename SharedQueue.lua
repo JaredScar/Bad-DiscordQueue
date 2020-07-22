@@ -33,9 +33,9 @@ function Queue:SetupPriority(user)
 	queueIndex = queueIndex + 1;
 	theirPrios = {};
 	msgs = {};
-	if identifierDiscord and not (Queue.Players[license] ~= nil) then
+	if identifierDiscord and (Queue.Players[license] == nil) then
         local roles = exports.discord_perms:GetRoles(user)
-        local lastRolePrio = 999999999999999;
+        local lastRolePrio = 99999999999999999999;
         local msg = nil;
         if not (roles == false) then
             for i = 1, #roles do
@@ -148,7 +148,6 @@ function Queue:GetMax()
 end
 
 function Queue:GetQueueNum(user)
-	local cout = 0;
 	local discordId = nil;
 	local license = nil;
 	for _, id in ipairs(GetPlayerIdentifiers(user)) do
@@ -160,11 +159,12 @@ function Queue:GetQueueNum(user)
 	    	license = string.gsub(id, "license:", "")
 	    end
 	end
-	for identifier, prio in pairs(Queue.Players) do 
-		cout = cout + 1;
+	for i = 1, #Queue.SortedKeys do 
+		local identifier = Queue.SortedKeys[i];
 		if identifier == license then 
 			return cout;
 		end
+		cout = cout + 1;
 	end
 	return 0;
 end
