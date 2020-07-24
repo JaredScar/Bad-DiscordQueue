@@ -159,6 +159,7 @@ function Queue:GetQueueNum(user)
 	    	license = string.gsub(id, "license:", "")
 	    end
 	end
+	local cout = 0;
 	for i = 1, #Queue.SortedKeys do 
 		local identifier = Queue.SortedKeys[i];
 		if identifier == license then 
