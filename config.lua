@@ -2,7 +2,7 @@ Config = {
 	Default_Prio = 500000, -- This is the default priority value if a discord isn't found
 	AllowedPerTick = 1, -- How many players should we allow to connect at a time?
 	HostDisplayQueue = true,
-	onlyActiveWhenFull = true,
+	onlyActiveWhenFull = false,
 	Displays = {
 		Prefix = '[BadgerDiscordQueue]',
 		ConnectingLoop = { 
@@ -29,10 +29,8 @@ Config = {
 Config.Rankings = {
 	-- LOWER NUMBER === HIGHER PRIORITY 
 	-- ['roleID'] = {rolePriority, connectQueueMessage},
-	['1'] = {500, "You are being connected (donate for a better priority) [{QUEUE_NUM}/{QUEUE_MAX}]:"}, -- Discord User 
-	['1'] = {400, "You are being connected (Donator Queue) [{QUEUE_NUM}/{QUEUE_MAX}]:"}, -- Donator 
-	['1'] = {300, "You are being connected (Trial-Mod Queue) [{QUEUE_NUM}/{QUEUE_MAX}]:"}, -- Trial Mod 
-	['1'] = {200, "You are being connected (Mod Queue) [{QUEUE_NUM}/{QUEUE_MAX}]:"}, -- Mod 
-	['1'] = {100, "You are being connected (Admin Queue) [{QUEUE_NUM}/{QUEUE_MAX}]:"}, -- Admin 
-	['1'] = {1, "You are being connected (Management Queue) [{QUEUE_NUM}/{QUEUE_MAX}]:"}, -- Management
+	['Member'] = {500, "You are being connected (you are not as special as Badger) [{QUEUE_NUM}/{QUEUE_MAX}]:"}, -- Discord User 
+	['Staff'] = {100, "You are being connected (Staff Queue) [{QUEUE_NUM}/{QUEUE_MAX}]:"}, -- Staff 
+	['Admin'] = {50, "You are being connected (Admin Queue) [{QUEUE_NUM}/{QUEUE_MAX}]:"}, -- Admin
+	['Founder'] = {1, "You are being connected (Founder Queue) [{QUEUE_NUM}/{QUEUE_MAX}]:"}, -- Founder
 }

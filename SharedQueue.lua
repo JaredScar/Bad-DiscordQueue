@@ -34,14 +34,14 @@ function Queue:SetupPriority(user)
 	theirPrios = {};
 	msgs = {};
 	if identifierDiscord and (Queue.Players[license] == nil) then
-        local roles = exports.discord_perms:GetRoles(user)
+        local roles = exports.Badger_Discord_API:GetDiscordRoles(user)
         local lastRolePrio = 99999999999999999999;
         local msg = nil;
         if not (roles == false) then
             for i = 1, #roles do
                 for roleID, list in pairs(Config.Rankings) do
                 	local rolePrio = list[1];
-                    if tonumber(roles[i]) == tonumber(roleID) then
+                	if exports.Badger_Discord_API:CheckEqual(roles[i], roleID) then
                         -- Return the index back to the Client script
                       	table.insert(theirPrios, rolePrio);
                       	if lastRolePrio > tonumber(rolePrio) then 

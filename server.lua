@@ -1,7 +1,7 @@
 displayIndex = 1;
 displays = Config.Displays.ConnectingLoop;
 prefix = Config.Displays.Prefix;
-currentConnectors = 0;
+currentConnectors = 1;
 maxConnectors = Config.AllowedPerTick;
 hostname = GetConvar("sv_hostname")
 slots = GetConvarInt('sv_maxclients', 32)
@@ -62,7 +62,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
       if not Queue:IsSetUp(user) then 
         -- Set them up 
         Queue:SetupPriority(user);
-        print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " has been set to the QUEUE");
+        print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " has been set to the QUEUE [" .. GetMessage(user) .. "]");
       end
       while ( not (Queue:CheckQueue(user)) and (currentConnectors == maxConnectors) ) or (GetPlayerCount() == slots) do 
         -- They are still in the queue 
@@ -91,7 +91,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
     if not Queue:IsSetUp(user) then 
       -- Set them up 
       Queue:SetupPriority(user);
-      print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " has been set to the QUEUE");
+      print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " has been set to the QUEUE [" .. GetMessage(user) .. "]");
     end
     while ( not (Queue:CheckQueue(user) and (currentConnectors == maxConnectors)) or (GetPlayerCount() == slots) ) do 
       -- They are still in the queue 
