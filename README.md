@@ -1,7 +1,7 @@
 # Documentation as well as updates to this resource have been moved to: https://docs.badger.store/fivem-discord-scripts/bad-discordqueue
 
 ## Jared's Developer Community [Discord]
-![Developer Discord](https://discordapp.com/api/guilds/597445834153525298/widget.png?style=banner4)
+[![Developer Discord](https://discordapp.com/api/guilds/597445834153525298/widget.png?style=banner4)](https://discord.com/invite/WjB5VFz)
 
 ## All I ask
 
