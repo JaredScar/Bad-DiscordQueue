@@ -33,6 +33,8 @@ Citizen.CreateThread(function()
     end
   end
 end)
+
+
 notSet = true;
 Citizen.CreateThread(function()
   while notSet do 
@@ -73,7 +75,6 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
         local message = GetMessage(user);
         local msg = message:gsub("{QUEUE_NUM}", Queue:GetQueueNum(user)):gsub("{QUEUE_MAX}", Queue:GetMax());
         deferrals.update(prefix .. " " .. msg .. displays[displayIndex]);
-        CancelEvent();
         displayIndex = displayIndex + 1;
       end
       -- If it got down here, they are now allowed to join the server 
@@ -91,7 +92,9 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
     if not Queue:IsSetUp(user) then 
       -- Set them up 
       Queue:SetupPriority(user);
-      print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " has been set to the QUEUE [" .. GetMessage(user) .. "]");
+      local message = GetMessage(user);
+      local msg = message:gsub("{QUEUE_NUM}", Queue:GetQueueNum(user)):gsub("{QUEUE_MAX}", Queue:GetMax());
+      print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " has been set to the QUEUE [" .. msg .. "]");
     end
     while ( not (Queue:CheckQueue(user) and (currentConnectors == maxConnectors)) or (GetPlayerCount() == slots) ) do 
       -- They are still in the queue 
@@ -102,7 +105,6 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
       local message = GetMessage(user);
       local msg = message:gsub("{QUEUE_NUM}", Queue:GetQueueNum(user)):gsub("{QUEUE_MAX}", Queue:GetMax());
       deferrals.update(prefix .. " " .. msg .. displays[displayIndex]);
-      CancelEvent();
       displayIndex = displayIndex + 1;
     end
     -- If it got down here, they are now allowed to join the server 
@@ -118,6 +120,9 @@ AddEventHandler('playerDropped', function (reason)
   local user = source;
   if (Queue:IsSetUp(user)) then 
     Queue:Pop(user);
+    if currentConnectors > 1 then 
+      currentConnectors = currentConnectors - 1;
+    end
     print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " has been removed from QUEUE");
   end
 end)
