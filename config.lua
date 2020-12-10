@@ -3,6 +3,7 @@ Config = {
 	AllowedPerTick = 1, -- How many players should we allow to connect at a time?
 	HostDisplayQueue = true,
 	onlyActiveWhenFull = false,
+	Webhook = '',
 	Displays = {
 		Prefix = '[BadgerDiscordQueue]',
 		ConnectingLoop = { 
@@ -22,8 +23,8 @@ Config = {
 		Messages = {
 			MSG_CONNECTING = 'You are being connected [{QUEUE_NUM}/{QUEUE_MAX}]: ', -- Default message if they have no discord roles 
 			MSG_CONNECTED = 'You are up! You are being connected now :)'
-		}
-	}
+		},
+	},
 }
 
 Config.Rankings = {

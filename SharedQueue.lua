@@ -136,6 +136,16 @@ function Queue:CheckQueue(user)
 	if (Queue.SortedKeys[1] == license) then 
 		return true; -- They can login 
 	end
+	local maxConnectors = Config.AllowedPerTick;
+	-- Added 12/10/20
+	local count = 1;
+	for k, v in pairs(Queue.SortedKeys) do 
+		if Queue.SortedKeys[count] == license and count <= maxConnectors then 
+			return true;
+		end
+		count = count + 1;
+	end
+	-- End add
 	return false; -- Still waiting in queue, not next in line 
 end 
 
