@@ -178,6 +178,9 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
           end
           connectingServer = false;
         end
+        if connecting[license] == nil then 
+          connectingServer = false;
+        end
       end 
     else	 
       deferrals.done();--deferrals done if server is not full as we don't want the queue
@@ -233,6 +236,9 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
         end
         connectingServer = false;
       end
+      if connecting[license] == nil then 
+        connectingServer = false;
+      end
     end
   end
 end)
@@ -269,9 +275,12 @@ AddEventHandler('DiscordQueue:Activated', function()
   -- They were activated, pop them from Queue 
   Queue:Pop(source);
   local user = source;
-  connecting[ExtractIdentifiers(user).license] = false;
+  connecting[ExtractIdentifiers(user).license] = nil;
   sendToDiscQueue("REMOVED QUEUE USER", "Player `" .. GetPlayerName(user):gsub("`", "") .. "` has been removed from the queue...", "Bad-DiscordQueue created by Badger");
   if (currentConnectors > 0) then 
     currentConnectors = currentConnectors - 1;
+  end
+  if Config.Debug then 
+    print("[Bad-DiscordQueue] (DiscordQueue:Activated) currentConnectors is == " .. tostring(currentConnectors) )
   end
 end)
