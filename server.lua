@@ -150,18 +150,35 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
         displayIndex = displayIndex + 1;
       end
       -- If it got down here, they are now allowed to join the server 
+      deferrals.done();
+      local license = ExtractIdentifiers(user).license;
+      connecting[license] = true;
+      print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " is allowed to join now!");
+      Wait(1000);
+      sendToDisc("NEW CONNECTOR", "Player `" .. GetPlayerName(user):gsub("`", "") .. "` is allowed to join now!", "Bad-DiscordQueue created by Badger");
       currentConnectors = currentConnectors + 1;
       if Config.Debug then 
         print("[Bad-DiscordQueue] currentConnectors is == " .. tostring(currentConnectors) )
       end
-      connecting[ExtractIdentifiers(user).license] = true;
-      print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " is allowed to join now!");
-      Wait(1000);
-      sendToDisc("NEW CONNECTOR", "Player `" .. GetPlayerName(user):gsub("`", "") .. "` is allowed to join now!", "Bad-DiscordQueue created by Badger");
-      local msg = Config.Displays.Messages.MSG_CONNECTED;
-      deferrals.update(prefix .. " " .. msg);
-      Wait(1);
-      deferrals.done();
+      local connectingServer = true;
+      while connectingServer do 
+        Citizen.Wait(3000);
+        --print("User is: " .. tostring(user) .. " and name is: " .. tostring(GetPlayerName(user)) )
+        if GetPlayerName(user) == nil then 
+          -- They no longer exist
+          if connecting[license] ~= nil then 
+            Queue:PopLicense(license)
+            connecting[license] = nil;
+          end
+          if (currentConnectors > 0) then 
+            currentConnectors = currentConnectors - 1;
+          end
+          if Config.Debug then 
+            print("[Bad-DiscordQueue] currentConnectors is == " .. tostring(currentConnectors) )
+          end
+          connectingServer = false;
+        end
+      end 
     else	 
       deferrals.done();--deferrals done if server is not full as we don't want the queue
     end
@@ -188,24 +205,43 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
       displayIndex = displayIndex + 1;
     end
     -- If it got down here, they are now allowed to join the server 
+    deferrals.done();
+    local license = ExtractIdentifiers(user).license;
+    connecting[license] = true;
+    print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " is allowed to join now!");
+    Wait(1000);
+    sendToDisc("NEW CONNECTOR", "Player `" .. GetPlayerName(user):gsub("`", "") .. "` is allowed to join now!", "Bad-DiscordQueue created by Badger");
     currentConnectors = currentConnectors + 1;
     if Config.Debug then 
       print("[Bad-DiscordQueue] currentConnectors is == " .. tostring(currentConnectors) )
     end
-    connecting[ExtractIdentifiers(user).license] = true;
-    print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " is allowed to join now!");
-    Wait(1000);
-    sendToDisc("NEW CONNECTOR", "Player `" .. GetPlayerName(user):gsub("`", "") .. "` is allowed to join now!", "Bad-DiscordQueue created by Badger");
-    local msg = Config.Displays.Messages.MSG_CONNECTED;
-    deferrals.update(prefix .. " " .. msg);
-    Wait(1);
-    deferrals.done();
+    local connectingServer = true;
+    while connectingServer do 
+      Citizen.Wait(3000);
+      --print("User is: " .. tostring(user) .. " and name is: " .. tostring(GetPlayerName(user)) )
+      if GetPlayerName(user) == nil then 
+        -- They no longer exist
+        if connecting[license] ~= nil then 
+          Queue:PopLicense(license)
+          connecting[license] = nil;
+        end
+        if (currentConnectors > 0) then 
+          currentConnectors = currentConnectors - 1;
+        end
+        if Config.Debug then 
+          print("[Bad-DiscordQueue] currentConnectors is == " .. tostring(currentConnectors) )
+        end
+        connectingServer = false;
+      end
+    end
   end
 end)
 AddEventHandler('playerDropped', function (reason)
   local user = source;
   if (connecting[ExtractIdentifiers(user).license] ~= nil) then 
-    currentConnectors = currentConnectors - 1;
+    if (currentConnectors > 0) then 
+      currentConnectors = currentConnectors - 1;
+    end
     connecting[ExtractIdentifiers(user).license] = nil;
   end
   if (Queue:IsSetUp(user)) then 
@@ -235,5 +271,7 @@ AddEventHandler('DiscordQueue:Activated', function()
   local user = source;
   connecting[ExtractIdentifiers(user).license] = false;
   sendToDiscQueue("REMOVED QUEUE USER", "Player `" .. GetPlayerName(user):gsub("`", "") .. "` has been removed from the queue...", "Bad-DiscordQueue created by Badger");
-  currentConnectors = currentConnectors - 1;
+  if (currentConnectors > 0) then 
+    currentConnectors = currentConnectors - 1;
+  end
 end)

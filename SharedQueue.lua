@@ -180,16 +180,33 @@ function Queue:GetQueueNum(user)
 	return 0;
 end
 
+function Queue:PopLicense(license)
+	-- Pop them off the Queue 
+	local tempQueue = {};
+	for id, prio in pairs(Queue.Players) do 
+		if not (id == license) then 
+			tempQueue[id] = prio;
+		end
+	end
+	Queue.Messages[license] = nil;
+	Queue.Players = tempQueue;
+	local SortedKeys = getKeysSortedByValue(Queue.Players, function(a, b) return a < b end)
+    Queue.SortedKeys = SortedKeys;
+    if debugg then 
+    	print("[DEBUG] " .. GetPlayerName(user) .. " has been POPPED from QUEUE")
+    end
+    if debugg then 
+	    for identifier, prio in pairs(Queue.Players) do 
+	    	print("[DEBUG] " .. identifier .. " has priority of: " .. prio);
+	    end
+	end 
+end
+
 function Queue:Pop(user)
 	-- Pop them off the Queue 
-	local discordId = nil;
 	local license = nil;
 
 	for _, id in ipairs(GetPlayerIdentifiers(user)) do
-	    if string.match(id, "discord:") then
-	        discordId = string.gsub(id, "discord:", "")
-	        --print("Found discord id: "..discordId)
-	    end
 	    if string.match(id, "license:") then 
 	    	license = string.gsub(id, "license:", "")
 	    end
