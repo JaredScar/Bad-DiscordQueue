@@ -120,7 +120,7 @@ function Queue:IsSetUp(user)
 	return false;
 end
 
-function Queue:CheckQueue(user) 
+function Queue:CheckQueue(user, currentConnectors) 
 	local discordId = nil;
 	local license = nil;
 
@@ -136,7 +136,7 @@ function Queue:CheckQueue(user)
 	if (Queue.SortedKeys[1] == license) then 
 		return true; -- They can login 
 	end
-	local maxConnectors = Config.AllowedPerTick;
+	local maxConnectors = Config.AllowedPerTick - currentConnectors;
 	-- Added 12/10/20
 	local count = 1;
 	for k, v in pairs(Queue.SortedKeys) do 

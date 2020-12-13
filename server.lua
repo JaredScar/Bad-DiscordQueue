@@ -137,7 +137,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
         local msg = message:gsub("{QUEUE_NUM}", Queue:GetQueueNum(user)):gsub("{QUEUE_MAX}", Queue:GetMax());
         print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " has been set to the QUEUE [" .. msg .. "]");
       end
-      while ( ( (not Queue:CheckQueue(user)) or (currentConnectors == maxConnectors) ) or (GetPlayerCount() == slots) ) do 
+      while ( ( (not Queue:CheckQueue(user, currentConnectors)) or (currentConnectors == maxConnectors) ) or (GetPlayerCount() == slots) ) do 
         -- They are still in the queue 
         Wait(1000);
         if displayIndex > #displays then
@@ -151,8 +151,12 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
       end
       -- If it got down here, they are now allowed to join the server 
       currentConnectors = currentConnectors + 1;
+      if Config.Debug then 
+        print("[Bad-DiscordQueue] currentConnectors is == " .. tostring(currentConnectors) )
+      end
       connecting[ExtractIdentifiers(user).license] = true;
       print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " is allowed to join now!");
+      Wait(1000);
       sendToDisc("NEW CONNECTOR", "Player `" .. GetPlayerName(user):gsub("`", "") .. "` is allowed to join now!", "Bad-DiscordQueue created by Badger");
       local msg = Config.Displays.Messages.MSG_CONNECTED;
       deferrals.update(prefix .. " " .. msg);
@@ -171,7 +175,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
       local msg = message:gsub("{QUEUE_NUM}", Queue:GetQueueNum(user)):gsub("{QUEUE_MAX}", Queue:GetMax());
       print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " has been set to the QUEUE [" .. msg .. "]");
     end
-    while ( ( (not Queue:CheckQueue(user)) or (currentConnectors == maxConnectors) ) or (GetPlayerCount() == slots) ) do 
+    while ( ( (not Queue:CheckQueue(user, currentConnectors)) or (currentConnectors == maxConnectors) ) or (GetPlayerCount() == slots) ) do 
       -- They are still in the queue 
       Wait(1000);
       if displayIndex > #displays then
@@ -185,8 +189,13 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
     end
     -- If it got down here, they are now allowed to join the server 
     currentConnectors = currentConnectors + 1;
+    if Config.Debug then 
+      print("[Bad-DiscordQueue] currentConnectors is == " .. tostring(currentConnectors) )
+    end
     connecting[ExtractIdentifiers(user).license] = true;
     print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " is allowed to join now!");
+    Wait(1000);
+    sendToDisc("NEW CONNECTOR", "Player `" .. GetPlayerName(user):gsub("`", "") .. "` is allowed to join now!", "Bad-DiscordQueue created by Badger");
     local msg = Config.Displays.Messages.MSG_CONNECTED;
     deferrals.update(prefix .. " " .. msg);
     Wait(1);

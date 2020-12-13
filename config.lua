@@ -3,6 +3,7 @@ Config = {
 	AllowedPerTick = 1, -- How many players should we allow to connect at a time?
 	HostDisplayQueue = true,
 	onlyActiveWhenFull = false,
+	Debug = true,
 	Webhook = '',
 	Displays = {
 		Prefix = '[BadgerDiscordQueue]',
