@@ -1,9 +1,14 @@
 Config = {
 	Default_Prio = 500000, -- This is the default priority value if a discord isn't found
-	AllowedPerTick = 1, -- How many players should we allow to connect at a time?
+	AllowedPerTick = 6, -- How many players should we allow to connect at a time?
 	HostDisplayQueue = true,
 	onlyActiveWhenFull = false,
-	Debug = true,
+	Requirements = { -- A player must have the identifier to be allowed into the server
+		Discord = true,
+		Steam = true
+	},
+	WhitelistRequired = false, -- If this option is set to true, a player must have a role in Config.Rankings to be allowed into the server
+	Debug = false,
 	Webhook = '',
 	Displays = {
 		Prefix = '[BadgerDiscordQueue]',
@@ -23,7 +28,10 @@ Config = {
 		},
 		Messages = {
 			MSG_CONNECTING = 'You are being connected [{QUEUE_NUM}/{QUEUE_MAX}]: ', -- Default message if they have no discord roles 
-			MSG_CONNECTED = 'You are up! You are being connected now :)'
+			MSG_CONNECTED = 'You are up! You are being connected now :)',
+			MSG_DISCORD_REQUIRED = 'Your Discord was not detected... You are required to have Discord to play on this server...',
+			MSG_STEAM_REQUIRED = 'Your Steam was not detected... You are required to have Steam to play on this server...',
+			MSG_NOT_WHITELISTED = 'You do not have a Discord role whitelisted for this server... You are not whitelisted.',
 		},
 	},
 }

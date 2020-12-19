@@ -1,8 +1,12 @@
 Queue = {}
 Queue.Players = {}
+Queue.PlayerInfo = {}
 Queue.SortedKeys = {}
 Queue.Messages = {}
-debugg = false;
+debugg = true;
+
+
+
 function getKeysSortedByValue(tbl, sortFunction)
   local keys = {}
   for key in pairs(tbl) do
@@ -15,6 +19,37 @@ function getKeysSortedByValue(tbl, sortFunction)
 
   return keys
 end
+
+function Queue:IsWhitelisted(user)
+	local discordId = nil;
+	local license = nil;
+
+	for _, id in ipairs(GetPlayerIdentifiers(user)) do
+	    if string.match(id, "discord:") then
+	        discordId = string.gsub(id, "discord:", "")
+	        --print("Found discord id: "..discordId)
+	    end
+	    if string.match(id, "license:") then 
+	    	license = string.gsub(id, "license:", "")
+	    end
+	end
+	local identifierDiscord = discordId;
+
+	if identifierDiscord then
+		local roles = exports.Badger_Discord_API:GetDiscordRoles(user);
+		if not (roles == false) then 
+			for i = 1, #roles do 
+				for roleID, list in pairs(Config.Rankings) do
+					if exports.Badger_Discord_API:CheckEqual(roles[i], roleID) then 
+						return true;
+					end
+				end
+			end
+		end
+	end
+	return false;
+end
+
 queueIndex = 0;
 function Queue:SetupPriority(user) 
 	local discordId = nil;
@@ -29,56 +64,62 @@ function Queue:SetupPriority(user)
 	    	license = string.gsub(id, "license:", "")
 	    end
 	end
-	local identifierDiscord = discordId;
-	queueIndex = queueIndex + 1;
-	theirPrios = {};
-	msgs = {};
-	if identifierDiscord and (Queue.Players[license] == nil) then
-        local roles = exports.Badger_Discord_API:GetDiscordRoles(user)
-        local lastRolePrio = 99999999999999999999;
-        local msg = nil;
-        if not (roles == false) then
-            for i = 1, #roles do
-                for roleID, list in pairs(Config.Rankings) do
-                	local rolePrio = list[1];
-                	if exports.Badger_Discord_API:CheckEqual(roles[i], roleID) then
-                        -- Return the index back to the Client script
-                      	table.insert(theirPrios, rolePrio);
-                      	if lastRolePrio > tonumber(rolePrio) then 
-                      		msg = list[2];
-                      		lastRolePrio = rolePrio;
-                      	end 
-                    end
-                end
-            end
-        else
-            Queue.Players[license] = tonumber(Config.Default_Prio) + queueIndex;;
-            Queue.Messages[license] = Config.Displays.Messages.MSG_CONNECTING;
-        end
-        if #theirPrios > 0 then 
-	        table.sort(theirPrios);
-	        Queue.Players[license] = tonumber(theirPrios[1])  + queueIndex;
-	    end 
-	    if msg ~= nil then 
-	    	Queue.Messages[license] = msg;
-	    end
-    elseif identifierDiscord == nil then
-        Queue.Players[license] = tonumber(Config.Default_Prio) + queueIndex;
-        Queue.Messages[license] = Config.Displays.Messages.MSG_CONNECTING;
-    end
-    if Queue.Players[license] == nil then 
-    	Queue.Players[license] = tonumber(Config.Default_Prio) + queueIndex;
-    end
-    if Queue.Messages[license] == nil then 
-    	Queue.Messages[license] = Config.Displays.Messages.MSG_CONNECTING;
-    end
-    local SortedKeys = getKeysSortedByValue(Queue.Players, function(a, b) return a < b end)
-    Queue.SortedKeys = SortedKeys;
-    if debugg then 
-	    for identifier, prio in pairs(Queue.Players) do 
-	    	print("[DEBUG] " .. identifier .. " has priority of: " .. prio);
-	    end
-	end 
+	if license ~= nil then 
+		-- Reset their account
+		Queue.Players[license] = nil;
+		local identifierDiscord = discordId;
+		queueIndex = queueIndex + 1;
+		theirPrios = {};
+		msgs = {};
+		if identifierDiscord and (Queue.Players[license] == nil) then
+			local roles = exports.Badger_Discord_API:GetDiscordRoles(user)
+			local lastRolePrio = 99999999999999999999;
+			local msg = nil;
+			if not (roles == false) then
+				for i = 1, #roles do
+					for roleID, list in pairs(Config.Rankings) do
+						local rolePrio = list[1];
+						if exports.Badger_Discord_API:CheckEqual(roles[i], roleID) then
+							-- Return the index back to the Client script
+							table.insert(theirPrios, rolePrio);
+							if lastRolePrio > tonumber(rolePrio) then 
+								msg = list[2];
+								lastRolePrio = rolePrio;
+							end 
+						end
+					end
+				end
+			else
+				Queue.Players[license] = tonumber(Config.Default_Prio) + queueIndex;;
+				Queue.Messages[license] = Config.Displays.Messages.MSG_CONNECTING;
+			end
+			if #theirPrios > 0 then 
+				table.sort(theirPrios);
+				Queue.Players[license] = tonumber(theirPrios[1])  + queueIndex;
+			end 
+			if msg ~= nil then 
+				Queue.Messages[license] = msg;
+			end
+		elseif identifierDiscord == nil then
+			Queue.Players[license] = tonumber(Config.Default_Prio) + queueIndex;
+			Queue.Messages[license] = Config.Displays.Messages.MSG_CONNECTING;
+		end
+		if Queue.Players[license] == nil then 
+			Queue.Players[license] = tonumber(Config.Default_Prio) + queueIndex;
+		end
+		if Queue.Messages[license] == nil then 
+			Queue.Messages[license] = Config.Displays.Messages.MSG_CONNECTING;
+		end
+		local SortedKeys = getKeysSortedByValue(Queue.Players, function(a, b) return a < b end)
+		Queue.SortedKeys = SortedKeys;
+		local username = GetPlayerName(user);
+		Queue.PlayerInfo[license] = { username, Queue.Players[license] };
+		if debugg then 
+			for identifier, data in pairs(Queue.PlayerInfo) do 
+				print("[DEBUG] " .. tostring(data[1]) .. " has priority of: " .. tostring(data[2]) );
+			end
+		end 
+	end -- License == nil, don't run
 end
 function GetMessage(user)
 	local discordId = nil;
@@ -120,7 +161,7 @@ function Queue:IsSetUp(user)
 	return false;
 end
 
-function Queue:CheckQueue(user, currentConnectors) 
+function Queue:CheckQueue(user, currentConnectors, slots) 
 	local discordId = nil;
 	local license = nil;
 
@@ -133,18 +174,20 @@ function Queue:CheckQueue(user, currentConnectors)
 	    	license = string.gsub(id, "license:", "")
 	    end
 	end
-	if (Queue.SortedKeys[1] == license) then 
+	if (tostring(Queue.SortedKeys[1]) == tostring(license) ) then 
 		return true; -- They can login 
 	end
-	local maxConnectors = Config.AllowedPerTick - currentConnectors;
 	-- Added 12/10/20
+	--[[]]--
+	local openSlots = (slots - GetNumPlayerIndices()) - currentConnectors;
 	local count = 1;
 	for k, v in pairs(Queue.SortedKeys) do 
-		if Queue.SortedKeys[count] == license and count <= maxConnectors then 
+		if Queue.SortedKeys[count] == license and count <= openSlots then 
 			return true;
 		end
 		count = count + 1;
 	end
+	--[[]]--
 	-- End add
 	return false; -- Still waiting in queue, not next in line 
 end 
@@ -169,7 +212,7 @@ function Queue:GetQueueNum(user)
 	    	license = string.gsub(id, "license:", "")
 	    end
 	end
-	local cout = 0;
+	local cout = 1;
 	for i = 1, #Queue.SortedKeys do 
 		local identifier = Queue.SortedKeys[i];
 		if identifier == license then 
@@ -177,56 +220,60 @@ function Queue:GetQueueNum(user)
 		end
 		cout = cout + 1;
 	end
-	return 0;
+	return 1;
 end
 
 function Queue:PopLicense(license)
 	-- Pop them off the Queue 
 	local tempQueue = {};
+	lic = license:gsub("license:", "");
+	--[[
 	for id, prio in pairs(Queue.Players) do 
-		if not (id == license) then 
+		if tostring(id) ~= tostring(lic) then 
 			tempQueue[id] = prio;
 		end
 	end
-	Queue.Messages[license] = nil;
-	Queue.Players = tempQueue;
+	]]--
+	Queue.Messages[lic] = nil;
+	Queue.Players[lic] = nil;
+	--Queue.Players = tempQueue;
+	Queue.PlayerInfo[lic] = nil;
+	if debugg then 
+		print("[DEBUG] " .. tostring(lic) .. " has been POPPED from QUEUE")
+    end
 	local SortedKeys = getKeysSortedByValue(Queue.Players, function(a, b) return a < b end)
     Queue.SortedKeys = SortedKeys;
-    if debugg then 
-    	print("[DEBUG] " .. GetPlayerName(user) .. " has been POPPED from QUEUE")
-    end
-    if debugg then 
-	    for identifier, prio in pairs(Queue.Players) do 
-	    	print("[DEBUG] " .. identifier .. " has priority of: " .. prio);
-	    end
-	end 
 end
 
 function Queue:Pop(user)
 	-- Pop them off the Queue 
-	local license = nil;
+	local lic = nil;
 
 	for _, id in ipairs(GetPlayerIdentifiers(user)) do
 	    if string.match(id, "license:") then 
-	    	license = string.gsub(id, "license:", "")
+	    	lic = string.gsub(id, "license:", "")
 	    end
 	end
 	local tempQueue = {};
+	--[[
 	for id, prio in pairs(Queue.Players) do 
-		if not (id == license) then 
+		if tostring(id) ~= tostring(lic) then 
 			tempQueue[id] = prio;
 		end
 	end
-	Queue.Messages[license] = nil;
-	Queue.Players = tempQueue;
+	]]--
+	Queue.Messages[lic] = nil;
+	Queue.Players[lic] = nil;
+	--Queue.Players = tempQueue;
+	Queue.PlayerInfo[lic] = nil;
 	local SortedKeys = getKeysSortedByValue(Queue.Players, function(a, b) return a < b end)
     Queue.SortedKeys = SortedKeys;
     if debugg then 
     	print("[DEBUG] " .. GetPlayerName(user) .. " has been POPPED from QUEUE")
     end
     if debugg then 
-	    for identifier, prio in pairs(Queue.Players) do 
-	    	print("[DEBUG] " .. identifier .. " has priority of: " .. prio);
+	    for identifier, data in pairs(Queue.PlayerInfo) do 
+	    	print("[DEBUG] " .. tostring(data[1]) .. " has priority of: " .. tostring(data[2]) );
 	    end
 	end 
 end
