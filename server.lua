@@ -237,7 +237,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
     playerConnecting[license] = {Connection = false, ID = user, PlayerName = playerName, Timeout = 0};
     if Config.onlyActiveWhenFull == true then 
       -- It's only active when server is full so lets check 
-      if (GetPlayerCount() + 1) > slots then  
+      if (GetPlayerCount() + 1) > slots or (GetPlayerCount() + Queue:GetMax()) > slots then  
         -- It's full, activate
         if not Queue:IsSetUp(user) then 
           -- Set them up 
