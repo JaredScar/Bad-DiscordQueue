@@ -71,6 +71,8 @@ function Queue:SetupPriority(user)
 		queueIndex = queueIndex + 1;
 		theirPrios = {};
 		msgs = {};
+		--local roleName = Config.Default_Role_Name;
+		local roleName = '';
 		if identifierDiscord and (Queue.Players[license] == nil) then
 			local roles = exports.Badger_Discord_API:GetDiscordRoles(user)
 			local lastRolePrio = 99999999999999999999;
@@ -85,6 +87,7 @@ function Queue:SetupPriority(user)
 							if lastRolePrio > tonumber(rolePrio) then 
 								msg = list[2];
 								lastRolePrio = rolePrio;
+								--roleName = list[3]; -- Only for AdaptiveCards version
 							end 
 						end
 					end
@@ -113,7 +116,12 @@ function Queue:SetupPriority(user)
 		local SortedKeys = getKeysSortedByValue(Queue.Players, function(a, b) return a < b end)
 		Queue.SortedKeys = SortedKeys;
 		local username = GetPlayerName(user);
-		Queue.PlayerInfo[license] = { username, Queue.Players[license] };
+		if identifierDiscord then 
+			local discordName = exports.Badger_Discord_API:GetDiscordName(user);
+			Queue.PlayerInfo[license] = { username, Queue.Players[license], roleName, discordName};
+		else 
+			Queue.PlayerInfo[license] = { username, Queue.Players[license], roleName };
+		end 
 		if debugg then 
 			for identifier, data in pairs(Queue.PlayerInfo) do 
 				print("[DEBUG] " .. tostring(data[1]) .. " has priority of: " .. tostring(data[2]) );
@@ -178,7 +186,7 @@ function Queue:CheckQueue(user, currentConnectors, slots)
 		return true; -- They can login 
 	end
 	-- Added 12/10/20
-	--[[]]--
+	--[[]]-- 120 - 72 - 30 = 18
 	local openSlots = (slots - GetNumPlayerIndices()) - currentConnectors;
 	local count = 1;
 	for k, v in pairs(Queue.SortedKeys) do 
@@ -243,6 +251,22 @@ function Queue:PopLicense(license)
     end
 	local SortedKeys = getKeysSortedByValue(Queue.Players, function(a, b) return a < b end)
     Queue.SortedKeys = SortedKeys;
+end
+
+function Queue:GetUserAt(index)
+	local licenseKey = Queue.SortedKeys[index];
+	if licenseKey ~= nil and Queue.PlayerInfo[licenseKey] ~= nil then 
+		local playerInfo = Queue.PlayerInfo[licenseKey];
+		local name = playerInfo[1];
+		local roleName = playerInfo[3];
+		if #playerInfo == 4 then 
+			local discordName = playerInfo[4] 
+			return {name, roleName, discordName};
+		else 
+			return {name, roleName};
+		end
+	end
+	return false; -- None there 
 end
 
 function Queue:Pop(user)

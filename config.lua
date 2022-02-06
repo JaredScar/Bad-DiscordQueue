@@ -1,6 +1,7 @@
 Config = {
 	Default_Prio = 500000, -- This is the default priority value if a discord isn't found
-	AllowedPerTick = 6, -- How many players should we allow to connect at a time?
+	AllowedPerTick = 1, -- How many players should we allow to connect at a time?
+	CheckForGhostUsers = 40, -- How many seconds should the script check for ghosts users in the queue?
 	HostDisplayQueue = true,
 	onlyActiveWhenFull = false,
 	Requirements = { -- A player must have the identifier to be allowed into the server
@@ -8,7 +9,7 @@ Config = {
 		Steam = true
 	},
 	WhitelistRequired = false, -- If this option is set to true, a player must have a role in Config.Rankings to be allowed into the server
-	Debug = false,
+	Debug = true,
 	Webhook = '',
 	Displays = {
 		Prefix = '[BadgerDiscordQueue]',

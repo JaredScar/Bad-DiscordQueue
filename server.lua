@@ -115,86 +115,43 @@ Citizen.CreateThread(function()
 end)
 
 function GetPlayerCount() 
-  return GetNumPlayerIndices();
+  local cout = 0;
+  for _, id in pairs(GetPlayers()) do 
+    cout = cout + 1;
+  end
+  return cout;
 end
+
 local connecting = {}
 local playerConnecting = {}
-
 function CheckForGhostUsers()
   for license, data in pairs(playerConnecting) do 
     local found = false;
     local user = data.ID;
     local name = data.PlayerName;
     local connectingg = data.Connection;
-    --[[ MASS DEBUG 
-    if Config.Debug then 
-      print("[Bad-DiscordQueue] (MASS DEBUG)")
-      print("[Bad-DiscordQueue] PlayerName: " .. tostring(name) .. " || ID:" .. tostring(user) .. " || GetPlayerName(user): " .. tostring(GetPlayerName(user) ) );
-    end
-    --[[ MASS DEBUG END ]]--
     if GetPlayerName(user) == nil or GetPlayerName(user) ~= name then 
       -- They no longer exist
       Queue:PopLicense(license)
       if Config.Debug then 
-        print(prefix .. " (Thread : NO LONGER EXISTS) Popped player " .. name .. " from queue...");
+        print("[Bad-DiscordQueue] (Thread : NO LONGER EXISTS) Popped player " .. name .. " from queue...");
       end
       if connecting[license] ~= nil then 
+        connecting[license] = nil;
         if (currentConnectors > 0) then 
           currentConnectors = currentConnectors - 1;
         end
-        if Config.Debug then 
-          print(prefix .. " (Thread : NO LONGER EXISTS) currentConnectors was decremented... FROM: " .. tostring(currentConnectors + 1) .. " -- TO: " .. 
-          tostring(currentConnectors));
-        end
-        connecting[license] = nil;
       end
       if Config.Debug then 
-        print(prefix .. " (Thread : NO LONGER EXISTS) currentConnectors is == " .. tostring(currentConnectors) )
+        print("[Bad-DiscordQueue] (Thread : NO LONGER EXISTS) currentConnectors is == " .. tostring(currentConnectors) )
       end
       playerConnecting[license] = nil;
     end
   end
 end
-
---[[
 Citizen.CreateThread(function()
   while true do 
-    Citizen.Wait((1000 * 20));
-    for license, data in pairs(playerConnecting) do 
-      local found = false;
-      local user = data.ID;
-      local name = data.PlayerName;
-      local connectingg = data.Connection;
-      -- MASS DEBUG 
-      if Config.Debug then 
-        print("[Bad-DiscordQueue] (MASS DEBUG)")
-        print("[Bad-DiscordQueue] PlayerName: " .. tostring(name) .. " || ID:" .. tostring(user) .. " || GetPlayerName(user): " .. tostring(GetPlayerName(user) ) );
-      end
-      -- MASS DEBUG END 
-      if GetPlayerName(user) ~= name and GetPlayerName(user) == nil then 
-        -- They no longer exist
-        Queue:PopLicense(license)
-        if Config.Debug then 
-          print("[Bad-DiscordQueue] (Thread : NO LONGER EXISTS) Popped player " .. name .. " from queue...");
-        end
-        if connecting[license] ~= nil then 
-          connecting[license] = nil;
-          if (currentConnectors > 0) then 
-            currentConnectors = currentConnectors - 1;
-          end
-        end
-        if Config.Debug then 
-          print("[Bad-DiscordQueue] (Thread : NO LONGER EXISTS) currentConnectors is == " .. tostring(currentConnectors) )
-        end
-        playerConnecting[license] = nil;
-      end
-    end
-  end
-end)
-]]--
-Citizen.CreateThread(function()
-  while true do 
-    Wait((40 * 1000));
+    Wait((Config.CheckForGhostUsers * 1000));
     CheckForGhostUsers();
   end
 end)
@@ -242,9 +199,9 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
         if not Queue:IsSetUp(user) then 
           -- Set them up 
           Queue:SetupPriority(user);
-          if GetPlayerName(user) ~= nil then 
+          if GetPlayerName(user) ~= nil then
             sendToDiscQueue("QUEUED USER", "Player `" .. GetPlayerName(user):gsub("`", "") .. "` has been added to the queue...", "Bad-DiscordQueue created by Badger");
-          end
+          end 
           local message = GetMessage(user);
           local msg = message:gsub("{QUEUE_NUM}", Queue:GetQueueNum(user)):gsub("{QUEUE_MAX}", Queue:GetMax());
           if GetPlayerName(user) ~= nil then
@@ -252,16 +209,16 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
           end
         end
         while ( ( (not Queue:CheckQueue(user, currentConnectors, slots)) or (currentConnectors == maxConnectors) ) or (GetPlayerCount() == slots) or 
-        ((GetPlayerCount() + currentConnectors + 1) > slots) or ( (GetPlayerCount() + currentConnectors ) >= slots) ) do 
+        ((GetPlayerCount() + currentConnectors + 1) > slots) or ( (GetPlayerCount() + currentConnectors ) >= slots) ) do  
           -- They are still in the queue 
-          Wait(1000);
+          Wait(3000);
           if displayIndex > #displays then
             displayIndex = 1;
           end 
+
           local message = GetMessage(user);
           local msg = message:gsub("{QUEUE_NUM}", Queue:GetQueueNum(user)):gsub("{QUEUE_MAX}", Queue:GetMax());
           deferrals.update(prefix .. " " .. msg .. displays[displayIndex]);
-          displayIndex = displayIndex + 1;
         end
         -- If it got down here, they are now allowed to join the server 
         if connecting[license] == nil or connecting[license] ~= true then 
@@ -280,9 +237,9 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
             playerConnecting[license].Connection = true;
           end
           if Config.Debug then 
-            print(prefix .. " (playerConnecting) currentConnectors is == " .. tostring(currentConnectors) )
+            print("[Bad-DiscordQueue] currentConnectors is == " .. tostring(currentConnectors) )
           end
-        end -- connecting[license] == nil
+        end -- connecting[license] == nil 
         deferrals.done();
       else	 
         deferrals.done();--deferrals done if server is not full as we don't want the queue
@@ -303,14 +260,15 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
       while ( ( (not Queue:CheckQueue(user, currentConnectors, slots)) or (currentConnectors == maxConnectors) ) or (GetPlayerCount() == slots) or 
         ((GetPlayerCount() + currentConnectors + 1) > slots) or ( (GetPlayerCount() + currentConnectors ) >= slots) ) do 
         -- They are still in the queue 
-        Wait(1000);
-        if displayIndex > #displays then
-          displayIndex = 1;
-        end 
-        local message = GetMessage(user);
-        local msg = message:gsub("{QUEUE_NUM}", Queue:GetQueueNum(user)):gsub("{QUEUE_MAX}", Queue:GetMax());
-        deferrals.update(prefix .. " " .. msg .. displays[displayIndex]);
-        displayIndex = displayIndex + 1;
+          Wait(3000);
+          if displayIndex > #displays then
+            displayIndex = 1;
+          end 
+
+          local message = GetMessage(user);
+          local msg = message:gsub("{QUEUE_NUM}", Queue:GetQueueNum(user)):gsub("{QUEUE_MAX}", Queue:GetMax());
+
+          deferrals.update(prefix .. " " .. msg .. displays[displayIndex]);
       end
       -- If it got down here, they are now allowed to join the server 
       if connecting[license] == nil or connecting[license] ~= true then 
@@ -319,7 +277,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
         connecting[license] = true;
         if GetPlayerName(user) ~= nil then
           print(prefix .. " " .. "Player " .. GetPlayerName(user) .. " is allowed to join now!");
-        end 
+        end
         Wait(1000);
         if GetPlayerName(user) ~= nil then
           sendToDisc("NEW CONNECTOR", "Player `" .. GetPlayerName(user):gsub("`", "") .. "` is allowed to join now!", "Bad-DiscordQueue created by Badger");
@@ -329,9 +287,9 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
           playerConnecting[license].Connection = true;
         end
         if Config.Debug then 
-          print(prefix .. " (playerConnecting) currentConnectors is == " .. tostring(currentConnectors) )
+          print("[Bad-DiscordQueue] currentConnectors is == " .. tostring(currentConnectors) )
         end
-      end -- connecting[license] == nil;
+      end -- connecting[license] == nil
       deferrals.done();
     end
   end
@@ -342,10 +300,6 @@ AddEventHandler('playerDropped', function (reason)
   if (connecting[license] ~= nil) then 
     if (currentConnectors > 0) then 
       currentConnectors = currentConnectors - 1;
-      if Config.Debug then 
-        print(prefix .. " (playerDropped) currentConnectors was decremented... FROM: " .. tostring(currentConnectors + 1) .. " -- TO: " .. 
-        tostring(currentConnectors));
-      end
     end
     connecting[license] = nil;
   end
@@ -368,13 +322,10 @@ AddEventHandler('DiscordQueue:Activated', function()
   sendToDiscQueue("REMOVED QUEUE USER", "Player `" .. GetPlayerName(user):gsub("`", "") .. "` has been removed from the queue...", "Bad-DiscordQueue created by Badger");
   if (currentConnectors > 0) then 
     currentConnectors = currentConnectors - 1;
-    if Config.Debug then 
-      print(prefix .. " (DiscordQueue:Activated) currentConnectors was decremented... FROM: " .. tostring(currentConnectors + 1) .. " -- TO: " .. 
-      tostring(currentConnectors));
-    end
   end
   if Config.Debug then 
     print(prefix .. " (DiscordQueue:Activated) " .. "Player " .. GetPlayerName(user) .. " has been removed from QUEUE");
-    print(prefix .. " (DiscordQueue:Activated) currentConnectors is == " .. tostring(currentConnectors) )
+    print("[Bad-DiscordQueue] (DiscordQueue:Activated) currentConnectors is == " .. tostring(currentConnectors) )
   end
 end)
+
