@@ -190,7 +190,10 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
       return;
     end
   end
-  if allowed then 
+  if allowed then
+    if (Queue:contains(license))
+      deferrals.done('You cannot join again since you are already in the queue...');
+    end
     playerConnecting[license] = {Connection = false, ID = user, PlayerName = playerName, Timeout = 0};
     if Config.onlyActiveWhenFull == true then 
       -- It's only active when server is full so lets check 
