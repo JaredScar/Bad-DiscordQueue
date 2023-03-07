@@ -191,7 +191,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
     end
   end
   if allowed then
-    if (Queue:contains(license))
+    if (Queue:contains(license)) then
       deferrals.done('You cannot join again since you are already in the queue...');
     end
     playerConnecting[license] = {Connection = false, ID = user, PlayerName = playerName, Timeout = 0};
