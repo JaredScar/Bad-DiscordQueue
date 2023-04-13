@@ -20,6 +20,13 @@ function getKeysSortedByValue(tbl, sortFunction)
   return keys
 end
 
+function Queue:Contains(license)
+    if Queue.Players[license] ~= nil then 
+        return true;
+    end
+    return false;
+end
+
 function Queue:IsWhitelisted(user)
 	local discordId = nil;
 	local license = nil;
