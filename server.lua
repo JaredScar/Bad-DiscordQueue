@@ -70,11 +70,40 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
         deferrals.update(Config.Displays.Prefix .. ' ' .. string.format(Config.Displays.Messages.MSG_PLACED_IN_QUEUE, priorityLabel))
         print(name..' placed in queue with prio '..tostring(priorityLabel))
 
+        MySQL.prepare.await(
+            'INSERT into queueStats ( discordId, queueStartTime, queueStopTime ) values ( ?, now(), null );', {
+            discordId
+        })
+
+        local dbEntryData = MySQL.prepare.await(
+            'SELECT id, queueStartTime from queueStats where discordId = ? and queueStopTime is null order by queueStartTime;', {
+            discordId
+        })
+
+        if dbEntryData[1] then
+            local numRecords = #dbEntryData
+
+            if numRecords > 1 then
+                for i=1,(numRecords-1) do
+                    MySQL.prepare.await(
+                        'UPDATE queueStats a set queueStopTime = \'12/31/9999\' where id = ?;', {
+                        dbEntryData[i].id
+                    })
+                end
+            end
+
+            dbEntryData = dbEntryData[numRecords]
+        end
+
+        local dbEntry = dbEntryData.id
+        local queueStartTime = dbEntryData.queueStartTime
+
         connections[discordId] = {
             Priority = priority,
             Deferral = deferrals,
             Name = name,
             Source = src,
+            dbEntry = dbEntry,
         }
 
         connCount = connCount + 1
@@ -96,11 +125,19 @@ RegisterNetEvent('DiscordQueue:Activated', function()
     local src = source
     local playerName = GetPlayerName(src)
     local discordId = getDiscordId(src)
-    connections[discordId] = nil
-    connCount = connCount - 1
-    grace[discordId] = nil
-    graceCount = graceCount - 1
-    print(playerName..' granted Grace prio for next disconnect')
+
+    if connections[discordId] then
+        MySQL.prepare.await(
+            'UPDATE queueStats a set queueStopTime = now() where id = ?;', {
+            connections[discordId].dbEntry
+        })
+
+        connections[discordId] = nil
+        connCount = connCount - 1
+        grace[discordId] = nil
+        graceCount = graceCount - 1
+        print(playerName..' granted Grace prio for next disconnect')
+    end
 end)
 
 -- Queue Thread
@@ -134,6 +171,11 @@ CreateThread(function()
                     Loading = v.Loading,
                 })
             else
+                MySQL.prepare.await(
+                    'UPDATE queueStats a set queueStopTime = now() where id = ?;', {
+                    connections[k].dbEntry
+                })
+
                 connections[k] = nil
                 connCount = connCount - 1
             end
