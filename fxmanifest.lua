@@ -2,16 +2,15 @@ fx_version 'cerulean'
 game 'gta5'
 
 author 'JaredScar'
-description 'DiscordQueue-AdaptiveCards'
+description 'DiscordQueue-AdaptiveCards Fork'
 version '2.0'
-url 'https://github.com/JaredScar/Bad-DiscordQueue'
+url 'https://github.com/crusopaul/Bad-DiscordQueue'
 
 client_scripts {
-	'client.lua',
+    'client.lua',
 }
 
 server_scripts {
-	'config.lua',
-	"server.lua",
-    "SharedQueue.lua"
+    'config.lua',
+    'server.lua'
 }
