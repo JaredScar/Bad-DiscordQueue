@@ -71,8 +71,9 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
         print(name..' placed in queue with prio '..tostring(priorityLabel))
 
         MySQL.prepare.await(
-            'INSERT into queueStats ( discordId, queueStartTime, queueStopTime ) values ( ?, now(), null );', {
-            discordId
+            'INSERT into queueStats ( discordId, queueStartTime, queueStopTime, queueType ) values ( ?, now(), null, ? );', {
+            discordId,
+            priorityLabel
         })
 
         local dbEntryData = MySQL.prepare.await(
